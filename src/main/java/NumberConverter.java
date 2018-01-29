@@ -1,6 +1,4 @@
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by antiz_000 on 1/25/2018.
@@ -12,12 +10,12 @@ public class NumberConverter {
     private Map<Long, String> secondConditionNumbers;
     private Map<Long, String> thirdConditionNumbers;
     private final String SPACE = " ";
-    private long maxValue;
 
     {
         firstConditionNumbers = Constants.getFirstConditionNumbers();
         secondConditionNumbers = Constants.getSecondConditionNumbers();
         thirdConditionNumbers = Constants.getThirdConditionNumbers();
+        basicNumbers = Constants.getBasicNumbers();
 
         firstConditionNumbers.forEach((aLong1, s) -> {
             if (!secondConditionNumbers.containsKey(aLong1))
@@ -25,32 +23,10 @@ public class NumberConverter {
             if (!thirdConditionNumbers.containsKey(aLong1))
                 thirdConditionNumbers.put(aLong1, s);
         });
-
-        /* /1000 */
-        basicNumbers = new HashMap<>();
-        firstConditionNumbers.keySet()
-                .stream()
-                .filter(x -> x >= 1000 && (x % 1000 == 0))
-                .forEach(aLong -> basicNumbers.put(aLong, firstConditionNumbers.get(aLong)));
-
-        maxValue = firstConditionNumbers.keySet().stream().max(Long::compare).get();
     }
 
     public String convertFromNumber(long n) {
-        Object[] res = convertFromNumber(n, (short) 1);
-        return (String) res[0];
-    }
 
-    private Object[] convertFromNumber(long n, short condition) {
-        /* if we don't know name of this number */
-        if (n >= maxValue * 1000) {
-            Object[] result = convertFromNumber(n / maxValue, getCondition(n));
-            String theBiggestResult = (String) result[0];
-            String normalResult = (String) convertFromNumber(n % maxValue, (Short) result[1])[0];
-            Object[] output = {theBiggestResult + SPACE + normalResult, 1};
-            return output;
-        }
-        /* if we know the name we will divide it by 1000 into necessary number of parts */
         StringBuilder sb = new StringBuilder();
         Comparator<Long> longComparator = Long::compare;
         basicNumbers.keySet()
@@ -77,7 +53,7 @@ public class NumberConverter {
                     }
                 });
         sb.append(printThreeNumbers(n % 1000, (short) 1));
-        return new Object[]{sb.toString(), getCondition(n)};
+        return sb.toString();
     }
 
     private String printThreeNumbers(long curNum, short condition) {
